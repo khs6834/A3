@@ -10,12 +10,15 @@ class Trie {
   this is the root node that points where nodes have internal storage for branches of the Trie
   there will be an extra entry other than 26 alphabets to represent a flag that determines if this node is a valid end of a word.
   */
-  char *rootNode[27];
+  Trie *node[26];
+  bool isValidEnd;
 
   //private helper function to add a character to the trie.
   void addWord (char charater);
   //private helper function to find the subtaret in the trie.
-  bool isAWord(std::string subTarget , char* currentNode);
+  bool isAWord(std::string subTarget , Trie* currentNode);
+  //recursive helper function for destructor
+  void deleteHelper (Trie* current);
 public:
   //default constructor.
   Trie();
@@ -26,7 +29,7 @@ public:
   //copy constructor
   Trie(const Trie& other);
   //=operator overload
-  Trie & operator=(const char* other);
+  Trie & operator=(const Trie* other);
 
   // Adds a word to this trie.
   void addAWord (std::string wordToAdd);
