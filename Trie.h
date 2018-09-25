@@ -14,11 +14,20 @@ class Trie {
   bool isValidEnd;
 
   //private helper function to add a character to the trie.
-  void addWord (char charater);
+  void addWord (std::string subString, Trie*  currentTrie);
   //private helper function to find the subtaret in the trie.
   bool isAWord(std::string subTarget , Trie* currentNode);
   //recursive helper function for destructor
   void deleteHelper (Trie* current);
+
+  int getIndexOfChar (char character);
+
+  char getCharOfIndex (int index);
+
+  void allWordsWithTheprefix (Trie* currentTrie, std::vector<std::string>& result,std::string prefix);
+  Trie* getTheNodeOfAfterPrefix (std::string prefix, Trie* currentTrie);
+  bool isValidPrefix (std::string prefix, Trie* currentTrie);
+
 public:
   //default constructor.
   Trie();
@@ -29,7 +38,7 @@ public:
   //copy constructor
   Trie(const Trie& other);
   //=operator overload
-  Trie & operator=(const Trie* other);
+  Trie & operator=(Trie* other);
 
   // Adds a word to this trie.
   void addAWord (std::string wordToAdd);

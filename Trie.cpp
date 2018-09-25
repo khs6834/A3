@@ -25,26 +25,24 @@ Trie::~Trie() {
 
 //copy constructor. copies the root node of other trie.
 Trie::Trie(const Trie& other) {
-  this->node = other.node;
+  std::copy(std::begin(other.node),std::end(other.node),std::begin(this->node));
   this->isValidEnd = other.isValidEnd;
 }
 
 //assign this to other
-Trie& Trie::operator=(char other) {
-  swap(this->node, other.node);
-  swap(this->isValidEnd, other.isValidEnd);
+Trie& Trie::operator=(Trie* other) {
+  std::swap(this->node, other->node);
+  std::swap(this->isValidEnd, other->isValidEnd);
   return *this;
 }
 
-// Adds a word to this trie.
-void Trie::addAWord (std::string wordToAdd) {
-  addWord(wordToAdd,this->node);
-}
+
 
 // helper function to add a character to the Trie
 void Trie::addWord (std::string subString, Trie*  currentTrie) {
   //base case.
   if (subString.length() ==1) {
+    int index = getIndexOfChar(subString.at(0));
     if(currentTrie->node[index] != nullptr) {
       return;
     }
@@ -66,54 +64,66 @@ void Trie::addWord (std::string subString, Trie*  currentTrie) {
   }
 }
 
+// Adds a word to this trie.
+void Trie::addAWord (std::string wordToAdd) {
+  if(wordToAdd.length() ==0)
+    return;
+  addWord(wordToAdd,this);
+}
+
 
 // returns true if there is target string in this trie
 bool Trie::isAWord (std::string target) {
-  return isAWord(target,this->node);
+  if(target.length() == 0)
+    return false;
+  return isAWord(target,this);
 }
 
 // helper function that returns false if the first char of the string is not in the trie.
 bool Trie::isAWord(std::string subTarget, Trie* currentTrie) {
-  if (subTarget.at(0) == nullptr) {
+  if (currentTrie->node[getIndexOfChar(subTarget.at(0))] == nullptr) {
     return false;
   }
-  else if(subTarget.length() == 1 && currentTrie->node[getIndexOfChar((char)subTarget)] != nullptr) {
+  else if(subTarget.length() == 1 && currentTrie->node[getIndexOfChar(subTarget.at(0))] != nullptr) {
     return true;
   }
   else {
-    return isAWord(subtarget.substr(1,subTarget.length()),currentTrie->node[getIndexOfChar((char)subTarget[0])]);
+    return isAWord(subTarget.substr(1,subTarget.length()),currentTrie->node[getIndexOfChar((char)subTarget[0])]);
   }
 
 }
 
 //returns all of the words that starts with the prefix in this trie.
-vector<std::string> Trie::allWordsStartingWithPrefix (std::string prefix) {
-  vector<std::string> result = new vector<std::string>();
-  if(!isValidPrefix)
+std::vector<std::string> Trie::allWordsStartingWithPrefix (std::string prefix) {
+  std::vector<std::string> result;
+  if(prefix.length() == 0) {
+    allWordsWithTheprefix(this,result,prefix);
     return result;
-
+  }
+  if(!isValidPrefix(prefix, this))
+    return result;
+  allWordsWithTheprefix(getTheNodeOfAfterPrefix(prefix,this),result,prefix);
+  return result;
 }
 
-bool isValidPrefix (std::string prefix, Trie* currentTrie) {
-  if(prefix.length() == 0)
-    return true;
+bool Trie::isValidPrefix (std::string prefix, Trie* currentTrie) {
   int index = getIndexOfChar(prefix.at(0));
   if (currentTrie->node[index] == nullptr) {
     return false;
   }
-  else if (prefix.length() == 1 && prefix.at(0) != nullptr) {
+  else if (prefix.length() == 1 && currentTrie->node[getIndexOfChar(prefix.at(0))] != nullptr) {
     return true;
   }
   else {
-    return isValidPrefix(prefix.substr(0,prefix.length()-1));
+    return isValidPrefix(prefix.substr(0,prefix.length()-1),currentTrie->node[index]);
   }
 }
 
 
-Trie* getTheNodeOfAfterPrefix (std::string prefix, Trie* currentTrie) {
+Trie* Trie::getTheNodeOfAfterPrefix (std::string prefix, Trie* currentTrie) {
   if(prefix.length() == 1)
-    return currentTrie->node[getIndexOfChar((char)prefix)];
-  return getTheNodeOfAfterPrefix(prefix.substf(1,prefix.length()-1),currentTrie->node[getIndexOfChar((char)prefix[0])]);
+    return currentTrie->node[getIndexOfChar(prefix.at(0))];
+  return getTheNodeOfAfterPrefix(prefix.substr(1,prefix.length()-1),currentTrie->node[getIndexOfChar((char)prefix[0])]);
 }
 //2nd helper parameters: current prefix, current node, and the vector to return and has previous words
 //check the 27th item in the array && each entry
@@ -122,16 +132,22 @@ Trie* getTheNodeOfAfterPrefix (std::string prefix, Trie* currentTrie) {
 // base case:: no more children
 
 
-bool allWordsWithTheprefix (Trie* currentTrie, vector<std::string>& result) {
-
+void Trie::allWordsWithTheprefix (Trie* currentTrie, std::vector<std::string>& result,std::string prefix) {
+  for (int i =0;i<26;i++) {
+    if(currentTrie->node[i]!=nullptr) {
+      if(currentTrie->isValidEnd)
+        result.push_back(prefix+getCharOfIndex(i));
+      allWordsWithTheprefix(currentTrie->node[i], result, prefix+getCharOfIndex(i));
+    }
+  }
 }
 
 
 
-int getIndexOfChar (char character) {
-  return (int)subString.at(0)-97;
+int Trie::getIndexOfChar (char character) {
+  return (int)character-97;
 }
 
-char getCharOfIndex (int index) {
+char Trie::getCharOfIndex (int index) {
   return (char)index+97;
 }
