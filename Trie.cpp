@@ -1,4 +1,5 @@
 #include "Trie.h"
+#include <iostream>
 //The default constructor. Initialize the root node with a new array of pointers in the heap.
 //The size is 27 which is number of alphabets + 1 for the flag to determine whether this node is the end of a valid word.
 Trie::Trie() {
@@ -10,11 +11,17 @@ Trie::Trie() {
 
 void Trie::deleteHelper (Trie* current) {
   for(int i =0; i<26; i++) {
+    //if(current == nullptr)
+    //std::cout<<"IT WAS NULL"<<std::endl;
+    //else {
+      //std::cout<<"IT WAS NOT NULL and the index was"<<i <<std::endl;
+    //}
     if(current->node[i] != nullptr) {
+      //std::cout<<"recursion with index"<<i<<std::endl;
       deleteHelper(node[i]);
     }
   }
-  delete this;
+  delete current;
 }
 //Delete the root node from the heap.
 //delete will delete all the internal branches as well.
@@ -44,10 +51,12 @@ void Trie::addWord (std::string subString, Trie*  currentTrie) {
   if (subString.length() ==1) {
     int index = getIndexOfChar(subString.at(0));
     if(currentTrie->node[index] != nullptr) {
+      currentTrie->node[index]->isValidEnd = true;
       return;
     }
     else {
       currentTrie->node[index] = new Trie();
+      currentTrie->node[index]->isValidEnd = true;
       // add a check if its a valid word. If it is, then add the flag.
       return;
     }
@@ -55,6 +64,7 @@ void Trie::addWord (std::string subString, Trie*  currentTrie) {
 
 
   int index = getIndexOfChar(subString.at(0));
+  // std::cout << index<<std::endl;
   if(currentTrie->node[index] != nullptr) {
     addWord(subString.substr(1,subString.length()), currentTrie->node[index]);
   }
@@ -84,8 +94,8 @@ bool Trie::isAWord(std::string subTarget, Trie* currentTrie) {
   if (currentTrie->node[getIndexOfChar(subTarget.at(0))] == nullptr) {
     return false;
   }
-  else if(subTarget.length() == 1 && currentTrie->node[getIndexOfChar(subTarget.at(0))] != nullptr) {
-    return true;
+  else if(subTarget.length() == 1 ) {
+    return currentTrie->node[getIndexOfChar(subTarget.at(0))]->isValidEnd;
   }
   else {
     return isAWord(subTarget.substr(1,subTarget.length()),currentTrie->node[getIndexOfChar((char)subTarget[0])]);
@@ -95,11 +105,14 @@ bool Trie::isAWord(std::string subTarget, Trie* currentTrie) {
 
 //returns all of the words that starts with the prefix in this trie.
 std::vector<std::string> Trie::allWordsStartingWithPrefix (std::string prefix) {
+  //std::cout<<"got here with prefix " <<prefix <<std::endl;
+
   std::vector<std::string> result;
   if(prefix.length() == 0) {
     allWordsWithTheprefix(this,result,prefix);
     return result;
   }
+  std::cout<<"isValidPrefix with "<<prefix << " was " <<isValidPrefix(prefix, this) <<std::endl;
   if(!isValidPrefix(prefix, this))
     return result;
   allWordsWithTheprefix(getTheNodeOfAfterPrefix(prefix,this),result,prefix);
@@ -107,6 +120,8 @@ std::vector<std::string> Trie::allWordsStartingWithPrefix (std::string prefix) {
 }
 
 bool Trie::isValidPrefix (std::string prefix, Trie* currentTrie) {
+  //std::cout<<"Got here isValidPrefix with prefix " <<prefix <<std::endl;
+
   int index = getIndexOfChar(prefix.at(0));
   if (currentTrie->node[index] == nullptr) {
     return false;
@@ -115,7 +130,7 @@ bool Trie::isValidPrefix (std::string prefix, Trie* currentTrie) {
     return true;
   }
   else {
-    return isValidPrefix(prefix.substr(0,prefix.length()-1),currentTrie->node[index]);
+    return isValidPrefix(prefix.substr(1,prefix.length()-1),currentTrie->node[index]);
   }
 }
 
@@ -135,8 +150,10 @@ Trie* Trie::getTheNodeOfAfterPrefix (std::string prefix, Trie* currentTrie) {
 void Trie::allWordsWithTheprefix (Trie* currentTrie, std::vector<std::string>& result,std::string prefix) {
   for (int i =0;i<26;i++) {
     if(currentTrie->node[i]!=nullptr) {
-      if(currentTrie->isValidEnd)
+      if(currentTrie->node[i]->isValidEnd){
         result.push_back(prefix+getCharOfIndex(i));
+        // std::cout<<prefix+getCharOfIndex(i)<< " was the word added to the vector "<<std::endl;;
+      }
       allWordsWithTheprefix(currentTrie->node[i], result, prefix+getCharOfIndex(i));
     }
   }

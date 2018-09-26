@@ -2,7 +2,8 @@
 A3 Hansol Kim CS3505
 Trie is a data structure that has good performance retrieving dictionary words.
 */
-
+#ifndef Trie_H
+#define Trie_H
 #include <string>
 #include <vector>
 class Trie {
@@ -49,3 +50,4 @@ public:
   //returns all of the words that starts with the prefix in this trie.
   std::vector<std::string> allWordsStartingWithPrefix (std::string prefix);
 };
+#endif
