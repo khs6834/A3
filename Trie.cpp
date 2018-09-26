@@ -30,9 +30,9 @@ Trie::Trie(const Trie& other) {
 }
 
 //assign this to other
-Trie& Trie::operator=(Trie* other) {
-  std::swap(this->node, other->node);
-  std::swap(this->isValidEnd, other->isValidEnd);
+Trie& Trie::operator=(Trie other) {
+  std::swap(this->node, other.node);
+  std::swap(this->isValidEnd, other.isValidEnd);
   return *this;
 }
 

@@ -38,7 +38,7 @@ public:
   //copy constructor
   Trie(const Trie& other);
   //=operator overload
-  Trie & operator=(Trie* other);
+  Trie & operator=(Trie other);
 
   // Adds a word to this trie.
   void addAWord (std::string wordToAdd);
