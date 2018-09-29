@@ -1,3 +1,6 @@
+/*
+A3 Hansol Kim CS3505
+*/
 #include "Trie.h"
 #include <iostream>
 //The default constructor. Initialize the root node with a new array of pointers in the heap.
@@ -9,31 +12,28 @@ Trie::Trie() {
   this->isValidEnd = false;
 }
 
-void Trie::deleteHelper (Trie* current) {
-  for(int i =0; i<26; i++) {
-    //if(current == nullptr)
-    //std::cout<<"IT WAS NULL"<<std::endl;
-    //else {
-      //std::cout<<"IT WAS NOT NULL and the index was"<<i <<std::endl;
-    //}
-    if(current->node[i] != nullptr) {
-      //std::cout<<"recursion with index"<<i<<std::endl;
-      deleteHelper(node[i]);
-    }
-  }
-  delete current;
-}
 //Delete the root node from the heap.
 //delete will delete all the internal branches as well.
 Trie::~Trie() {
-  deleteHelper(this);
+  for(int i =0; i<26; i++) {
+    if(this->node[i] != nullptr) {
+      delete this->node[i];
+    }
+  }
 }
 
 
 //copy constructor. copies the root node of other trie.
 Trie::Trie(const Trie& other) {
-  std::copy(std::begin(other.node),std::end(other.node),std::begin(this->node));
   this->isValidEnd = other.isValidEnd;
+  for(int i =0;i<26;i++) {
+    this->node[i] = nullptr;
+  }
+  for(int i=0;i<26;i++) {
+    if(other.node[i]!=nullptr) {
+      this->node[i] = new Trie(*other.node[i]);
+    }
+  }
 }
 
 //assign this to other
@@ -64,7 +64,6 @@ void Trie::addWord (std::string subString, Trie*  currentTrie) {
 
 
   int index = getIndexOfChar(subString.at(0));
-  // std::cout << index<<std::endl;
   if(currentTrie->node[index] != nullptr) {
     addWord(subString.substr(1,subString.length()), currentTrie->node[index]);
   }
@@ -100,28 +99,26 @@ bool Trie::isAWord(std::string subTarget, Trie* currentTrie) {
   else {
     return isAWord(subTarget.substr(1,subTarget.length()),currentTrie->node[getIndexOfChar((char)subTarget[0])]);
   }
-
 }
 
 //returns all of the words that starts with the prefix in this trie.
 std::vector<std::string> Trie::allWordsStartingWithPrefix (std::string prefix) {
-  //std::cout<<"got here with prefix " <<prefix <<std::endl;
 
   std::vector<std::string> result;
   if(prefix.length() == 0) {
     allWordsWithTheprefix(this,result,prefix);
     return result;
   }
-  std::cout<<"isValidPrefix with "<<prefix << " was " <<isValidPrefix(prefix, this) <<std::endl;
   if(!isValidPrefix(prefix, this))
     return result;
   allWordsWithTheprefix(getTheNodeOfAfterPrefix(prefix,this),result,prefix);
   return result;
 }
 
+/*
+returns true if the prefix exists in the Trie.
+*/
 bool Trie::isValidPrefix (std::string prefix, Trie* currentTrie) {
-  //std::cout<<"Got here isValidPrefix with prefix " <<prefix <<std::endl;
-
   int index = getIndexOfChar(prefix.at(0));
   if (currentTrie->node[index] == nullptr) {
     return false;
@@ -134,25 +131,25 @@ bool Trie::isValidPrefix (std::string prefix, Trie* currentTrie) {
   }
 }
 
-
+/*
+returns the node with the last char.
+*/
 Trie* Trie::getTheNodeOfAfterPrefix (std::string prefix, Trie* currentTrie) {
   if(prefix.length() == 1)
     return currentTrie->node[getIndexOfChar(prefix.at(0))];
   return getTheNodeOfAfterPrefix(prefix.substr(1,prefix.length()-1),currentTrie->node[getIndexOfChar((char)prefix[0])]);
 }
-//2nd helper parameters: current prefix, current node, and the vector to return and has previous words
-//check the 27th item in the array && each entry
-//if 27th is true, add it to the  v;
-//else if an entry is true, recursion.
-// base case:: no more children
 
 
+
+/*
+This is a recursive function adding all words after the prefix and that are valid.
+*/
 void Trie::allWordsWithTheprefix (Trie* currentTrie, std::vector<std::string>& result,std::string prefix) {
   for (int i =0;i<26;i++) {
     if(currentTrie->node[i]!=nullptr) {
       if(currentTrie->node[i]->isValidEnd){
         result.push_back(prefix+getCharOfIndex(i));
-        // std::cout<<prefix+getCharOfIndex(i)<< " was the word added to the vector "<<std::endl;;
       }
       allWordsWithTheprefix(currentTrie->node[i], result, prefix+getCharOfIndex(i));
     }
@@ -160,11 +157,16 @@ void Trie::allWordsWithTheprefix (Trie* currentTrie, std::vector<std::string>& r
 }
 
 
-
+//returns the intdex of char
 int Trie::getIndexOfChar (char character) {
   return (int)character-97;
 }
 
+//returns the char of index
 char Trie::getCharOfIndex (int index) {
   return (char)index+97;
+}
+
+std::vector<std::string> Trie::wordsWithWildcardPrefix (std::string prefix) {
+  return std::vector<std::string>();
 }

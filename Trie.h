@@ -18,8 +18,6 @@ class Trie {
   void addWord (std::string subString, Trie*  currentTrie);
   //private helper function to find the subtaret in the trie.
   bool isAWord(std::string subTarget , Trie* currentNode);
-  //recursive helper function for destructor
-  void deleteHelper (Trie* current);
 
   int getIndexOfChar (char character);
 
@@ -49,5 +47,8 @@ public:
 
   //returns all of the words that starts with the prefix in this trie.
   std::vector<std::string> allWordsStartingWithPrefix (std::string prefix);
+
+  //extra credit function
+  std::vector<std::string> wordsWithWildcardPrefix (std::string prefix);
 };
 #endif
